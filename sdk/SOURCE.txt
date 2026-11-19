@@ -1,4 +1,4 @@
-commit b766ee3
-date   2026-11-17T02:05:18-08:00
-about  Pin order in hw3/pins.py, so the public SDK needn't carry the netlist
-copied 2026-11-17T07:12:03Z by tools/update-sdk.sh
+commit 94ab2d7c52d229dadcbc428db15c222c2a7d1a48
+date   2026-11-18T12:25:13-08:00
+about  Every frame plugin on cvfserve.S, the two-sample bus loop
+copied 2026-11-18 by tools/update-sdk.sh

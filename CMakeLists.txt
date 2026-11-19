@@ -29,8 +29,8 @@ include(${PARROTCART_SDK}/sdk/cvplugin.cmake)
 
 # The same source makes the same file, whenever it's built: the compiler's
 # __DATE__ and __TIME__ (the build date in the binary info) come from
-# SOURCE_DATE_EPOCH, fixed here at the tested build's, 2026-11-15 19:28:57 UTC.
-set(BUILD_EPOCH 1794770937)
+# SOURCE_DATE_EPOCH, fixed here at the tested build's day, 2026-11-18.
+set(BUILD_EPOCH 1795003200)
 set(CMAKE_C_COMPILER_LAUNCHER ${CMAKE_COMMAND} -E env SOURCE_DATE_EPOCH=${BUILD_EPOCH})
 set(CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_COMMAND} -E env SOURCE_DATE_EPOCH=${BUILD_EPOCH})
 
@@ -41,9 +41,10 @@ add_executable(starwars ${OURS} ${PARROTCART_SDK}/midihello/vdp.c)
 target_include_directories(starwars PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src ${PARROTCART_SDK}/midihello)
 target_compile_definitions(starwars PRIVATE PICO_PRINTF_SUPPORT_FLOAT=0 PICO_PRINTF_SUPPORT_EXPONENTIAL=0)
 cvframes_use(starwars)
+cvframes_serve2(starwars)   # core 1's bus loop acts on two samples of the pins that agree (sdk/cvfserve.S)
 cvsd_use(starwars)
 cvpad_use(starwars)                         # USB game pads: the port is a host
 pico_enable_stdio_usb(starwars 0)
 pico_enable_stdio_uart(starwars 0)
-cvcart_plugin(starwars ID parrotcart.starwars NAME "Star Wars" VERSION 0.1.4 BY "Parrot Cart"
+cvcart_plugin(starwars ID parrotcart.starwars NAME "Star Wars" VERSION 0.1.5 BY "Parrot Cart"
               HOME /STARWARS USES usb-host ICON src/starwars_icon.txt FILE STARWARS.CVP README CART-README.md)

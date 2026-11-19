@@ -178,6 +178,9 @@ static void going_back(void) {
 static uint8_t last_key = SWKEY_NONE;
 static uint32_t last_usb, seen_pic, cyc_frac;
 static uint32_t late, us_max, pics, pics_at_note;
+#ifdef CVF_SERVE2
+static uint32_t put_offs;                   // pictures put off (the note)
+#endif
 static int16_t speech[SW_SPEECH_MAX];
 
 static void game_frame(uint32_t elapsed) {
@@ -217,6 +220,9 @@ static void game_frame(uint32_t elapsed) {
         // the list is out in time, and the console keeps the picture it has
         if (time_us_32() - t0 > DRAW_BY_US && put_off < 2) {
             put_off++;
+#ifdef CVF_SERVE2
+            put_offs++;
+#endif
         } else {
             put_off = 0;
             pics += pic - seen_pic;
@@ -241,7 +247,19 @@ static void update_note(void) {
     unsigned per_s = MIN(pics - pics_at_note, 99u), dl = MIN(late - late_last, 99u), ms = MIN(us_max / 1000, 99u),
              tenths = us_max / 100 % 10;
     char n[48];
+#ifdef CVF_SERVE2
+    // with cvfserve.S's loop: p, pictures put off in the last second; s and h,
+    // addresses core 1 took for a select or the header on two samples and
+    // then refused, since the start (the old loop would have stopped for each)
+    static uint32_t put_last;
+    uint32_t unsel, early, unhdr;
+    cvf_bus_counts(&unsel, &early, &unhdr);
+    snprintf(n, sizeof n, TAG " %u/s %uL %u.%ums p%u s%u h%u", per_s, dl, ms, tenths, (unsigned)MIN(put_offs - put_last, 99u),
+             (unsigned)MIN(unsel, 9999u), (unsigned)MIN(unhdr, 9999u));
+    put_last = put_offs;
+#else
     snprintf(n, sizeof n, TAG " %s %u/s %uL %u.%ums", enc.colour ? "col" : "bw", per_s, dl, ms, tenths);
+#endif
     cvf_note(n);
     t_last = t;
     late_last = late;

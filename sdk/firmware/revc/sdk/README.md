@@ -17,6 +17,7 @@ is the example to copy.
 | `cvheap.c/.h` | A heap for a plugin that needs `new` and `malloc` (an emulator core): `_sbrk` stops below the launch block, so `malloc` returns NULL there instead of overwriting it. `cvcart_plugin(... HEAP)` links it. `cvheap_reserve()`, before the first `malloc`: the whole heap from `_sbrk` at once, which newlib's `malloc` otherwise takes 4K blocks at a time and can't then use to the end. `cvheap_largest()`: the largest block still to be had (the NES plugin's note). |
 | `mkpins.py` | `pins.h` (the address and data pin order) from `hw3/pins.py`, for `cvframes.c`; the same table as the menu's. |
 | `cvplugin.cmake` | `cvkernel_use()` or `cvframes_use()`, `cvsd_use()`, `cvpsram_use()`, `cvpad_use()`, and `cvcart_plugin()`, which makes the no_flash binary, packages it and writes the `.CVP`. |
+| `cvfserve.S` | With `cvframes_serve2(target)` after `cvframes_use()`: core 1's bus loop is this one, the games' loop (`cvplay/cvserve.S`, `cvplay/CVSERVE.md`) for the frame lists. Nothing is made of one sample of the pins, and a select-like address doesn't stop the serving. Without it the loop is `cvframes.c`'s own and the plugin builds as before. `test/cvframes.sh NEW.elf [OLD.elf]` runs either against the kernel's bus cycles. Use it in a new frame plugin: on the console (2026-11-18) it cured The Empire Strikes Back's glitches, and every frame plugin here is built with it. The old loop is still the default so a plugin that doesn't ask builds as before. |
 | `cvreadme.py` | A plugin's `README.md` as the cart shows it: plain ASCII, 30 columns (`docs/plugins.md`, "The README"). `cvcart_plugin(... README README.md)` runs it through `mkcvp.py --readme`; by itself it prints the text. `test/test_cvreadme.py` checks each rule. |
 | `reserve.ld` | Added to a plugin's link: its `.bss` must stop below the launch block (crt0 zeroes `.bss` before `main`). |
 
@@ -87,7 +88,23 @@ Rules a plugin keeps:
 
 `../nes/plugin` is the example. The console runs the Game Boy kernel, and
 each TV frame the plugin publishes one list for the next frame (the list
-format and its costs are in `gbkernel.asm`'s header):
+format and its costs are in `gbkernel.asm`'s header).
+
+In `CMakeLists.txt`, a new frame plugin should ask for the two-sample bus
+loop:
+
+```cmake
+cvframes_use(myplugin)
+cvframes_serve2(myplugin)    # core 1's bus loop is cvfserve.S
+```
+
+`cvframes_serve2()` is recommended. Without it core 1 runs `cvframes.c`'s
+older loop, which acts on one sample of the pins and can hand the console a
+wrong byte or take a stray address for RESET. The plugin's code is the same
+either way. `cvf_bus_counts()` says what the new loop refused, for the note.
+The loop is timed for the SDK's 150 MHz clock.
+
+Then in `main()`:
 
 ```c
 #include "cvframes.h"
