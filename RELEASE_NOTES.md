@@ -1,1 +1,3 @@
-The cart now reads the console's address lines twice, and answers only when the two agree. This is the bus loop that fixed the glitches in The Empire Strikes Back 0.1.4.
+- Keypad * or # adds a coin, and keypad 1 starts the game, the same keys as the other arcade plugins. On a USB pad, minus is the coin and plus the start, as before.
+- The plugin now finds a pad that is already on a powered hub when the game starts, and one you plug in while it runs.
+- The cart now sends the sound chip's whole state with every frame, so a byte the console misreads can't leave a tone stuck on.

@@ -65,11 +65,14 @@ static inline int16_t swpad_ramp(int16_t at, int dir) {
 //                   joystick (the yoke moves while held, and springs back);
 //                   up aims up, unless s->invert
 //   fire            either fire button; a pad's face buttons and triggers
-//   coin            keypad 1; a pad's - (select): one coin a press
-//   start           keypad 2; a pad's + (the game starts on a fire button)
+//   coin            keypad * or #; a pad's - (select): one coin a press
+//   start           keypad 1; a pad's + (the game starts on a fire button)
+// (* or # for a coin and 1 and 2 for the starts are the arcade plugins'
+// keys; Star Wars has one player, so 2 does nothing)
 static inline void swpad_frame(swpad_t *s, uint8_t joy, uint8_t fire, uint8_t key, const gamepad_t *pad, sw_inputs_t *in) {
     int dx = (!(joy & 2) ? 1 : 0) - (!(joy & 8) ? 1 : 0), dy = (!(joy & 1) ? 1 : 0) - (!(joy & 4) ? 1 : 0);    // right, up
-    bool f = !(fire & 1) || !(fire & 2), coin = key == SWKEY_1, start = key == SWKEY_2;
+    bool f = !(fire & 1) || !(fire & 2), coin = key == SWKEY_STAR || key == SWKEY_HASH,
+         start = key == SWKEY_1;
     int ax = 0, ay = 0;
     if (pad) {
         uint32_t b = pad->buttons;

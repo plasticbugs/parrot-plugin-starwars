@@ -1,4 +1,4 @@
-commit 94ab2d7c52d229dadcbc428db15c222c2a7d1a48
-date   2026-11-18T12:25:13-08:00
-about  Every frame plugin on cvfserve.S, the two-sample bus loop
-copied 2026-11-18 by tools/update-sdk.sh
+commit 045255cbad06129d48765c3eb712473e87b86e5f
+date   2026-11-21T20:52:54-08:00
+about  Star Wars 0.1.8, Empire 0.1.7: the whole PSG every list
+copied 2026-11-22 by tools/update-sdk.sh

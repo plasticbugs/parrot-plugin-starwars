@@ -18,8 +18,8 @@ On the ColecoVision controller:
 
 - The joystick moves the yoke. The yoke springs back when you let go.
 - Either fire button fires.
-- Keypad 1 adds a coin.
-- Keypad 2 starts the game. Fire starts it too.
+- Keypad * or # adds a coin.
+- Keypad 1 starts the game. Fire starts it too.
 - Keypad 0 swaps up and down.
 - Press RESET on the console to go back to the menu.
 

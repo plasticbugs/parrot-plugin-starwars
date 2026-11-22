@@ -18,8 +18,8 @@ On the ColecoVision controller:
 
 - The joystick moves the yoke. The yoke springs back when you let go.
 - Either fire button fires.
-- Keypad 1 adds a coin.
-- Keypad 2 starts the game. Fire starts it too.
+- Keypad * or # adds a coin.
+- Keypad 1 starts the game. Fire starts it too.
 - Keypad 0 swaps up and down.
 - Press RESET on the console to go back to the menu.
 
@@ -51,9 +51,9 @@ Parts of this plugin are ports of MAME's code, or were checked against it. That 
 
 You can find MAME at https://www.mamedev.org. The zip reader follows Mark Adler's puff, from zlib. USB support comes from TinyUSB by Ha Thach, under the MIT license.
 
-The plugin itself is by Parrot Cart, and it's free. Its source is linked next to its download.
+The plugin itself is by Parrot Cart, and it's free. Its source is in this repository, https://github.com/plasticbugs/parrot-plugin-starwars.
 
-Star Wars is a trademark of Lucasfilm Ltd. This plugin contains none of the game.
+Star Wars is a trademark of Lucasfilm Ltd. Parrot Cart isn't connected with them. This plugin doesn't include any game ROMs.
 
 ## Build it yourself
 
@@ -72,8 +72,8 @@ This makes `build/STARWARS.CVP`. Copy it into the `/PLUGINS` folder on the card.
 On Ubuntu, `tools/ci/setup.sh` installs the same tools that GitHub uses to
 build each release.
 
-`CART-README.md` is the text the cart shows on the plugin's page. It is
-the start of this README.
+`CART-README.md` is the text the cart shows on the plugin's page. This
+README starts with the same text.
 
 ## License
 

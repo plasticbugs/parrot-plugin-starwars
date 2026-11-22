@@ -500,17 +500,23 @@ static int pokey_voices(const sw_pokeys_t *p, voice_t *v, int *noise_vol, int *n
     return n;
 }
 
+// Every list writes all of the chip, changed or not: each tone's period
+// and attenuator, the noise's attenuator, and the noise's control while the
+// noise is silent. Up to Star Wars 0.1.7 and Empire 0.1.6 only the changes
+// went out, so one byte the console misread (a bus hiccup) could leave a
+// wrong tone or volume until the game changed it; now it lasts a list at
+// most. The noise's control is the exception while the noise sounds: a
+// write restarts its shift register, and once a list that would repeat
+// the noise 60 times a second (a buzz), so then it goes out on a change
+// only. A silent channel keeps its last period.
 static void tone_set(swcv_t *e, int c, int period, int att) {
     uint8_t *b = e->tone_bytes;
-    if (period > 0 && period != e->psg_period[c]) {
-        b[e->tone_n++] = (uint8_t)(0x80 | c << 5 | (period & 15));
-        b[e->tone_n++] = (uint8_t)(period >> 4 & 0x3F);
-        e->psg_period[c] = (int16_t)period;
-    }
-    if (att != e->psg_att[c]) {
-        b[e->tone_n++] = (uint8_t)(0x90 | c << 5 | ATT_SENT(e, att));
-        e->psg_att[c] = (int8_t)att;
-    }
+    if (period > 0) e->psg_period[c] = (int16_t)period;
+    int p = e->psg_period[c] > 0 ? e->psg_period[c] : 1;
+    b[e->tone_n++] = (uint8_t)(0x80 | c << 5 | (p & 15));
+    b[e->tone_n++] = (uint8_t)(p >> 4 & 0x3F);
+    b[e->tone_n++] = (uint8_t)(0x90 | c << 5 | ATT_SENT(e, att));
+    e->psg_att[c] = (int8_t)att;
 }
 
 void swcv_sound(swcv_t *e, const sw_pokeys_t *p, const int16_t *speech, int nspeech, bool talking) {
@@ -525,12 +531,12 @@ void swcv_sound(swcv_t *e, const sw_pokeys_t *p, const int16_t *speech, int nspe
     else if (e->pcm_hold) e->pcm_hold--;
     bool was = e->pcm;
     e->pcm_frame = e->pcm_hold > 0 || e->pcm_gain > 0;
-    if (e->pcm_frame && !was) {             // tones 1 and 2 become the DAC
+    if (e->pcm_frame) {                     // tones 1 and 2 are the DAC (parked every list)
         static const uint8_t park[] = {0xA1, 0x00, 0xC1, 0x00};
         memcpy(e->tone_bytes, park, 4);
         e->tone_n = 4;
         e->psg_period[1] = e->psg_period[2] = 1;
-        e->voice_key[1] = e->voice_key[2] = 0;
+        if (!was) e->voice_key[1] = e->voice_key[2] = 0;
     }
     e->pcm = e->pcm_frame;
     if (e->pcm_frame) {
@@ -607,14 +613,13 @@ void swcv_sound(swcv_t *e, const sw_pokeys_t *p, const int16_t *speech, int nspe
     }
     int natt = vol_att[noise_vol] + (e->pcm ? SPEECH_DUCK : 0);
     if (natt > 15) natt = 15;
-    if (noise_vol && e->psg_noise != (4 | noise_rate)) {   // (a write restarts the shift register: only on a change)
-        e->tone_bytes[e->tone_n++] = (uint8_t)(0xE0 | 4 | noise_rate);
-        e->psg_noise = (int16_t)(4 | noise_rate);
+    int nc = noise_vol ? 4 | noise_rate : e->psg_noise >= 0 ? e->psg_noise : 4;
+    if (nc != e->psg_noise || natt == 15) {     // (a write restarts the shift register: while it sounds, only on a change)
+        e->tone_bytes[e->tone_n++] = (uint8_t)(0xE0 | nc);
+        e->psg_noise = (int16_t)nc;
     }
-    if (natt != e->psg_att[3]) {
-        e->tone_bytes[e->tone_n++] = (uint8_t)(0xF0 | ATT_SENT(e, natt));
-        e->psg_att[3] = (int8_t)natt;
-    }
+    e->tone_bytes[e->tone_n++] = (uint8_t)(0xF0 | ATT_SENT(e, natt));
+    e->psg_att[3] = (int8_t)natt;
 }
 
 void swcv_set_colour(swcv_t *e, bool colour) {
