@@ -1,3 +1,1 @@
-- Keypad * or # adds a coin, and keypad 1 starts the game, the same keys as the other arcade plugins. On a USB pad, minus is the coin and plus the start, as before.
-- The plugin now finds a pad that is already on a powered hub when the game starts, and one you plug in while it runs.
-- The cart now sends the sound chip's whole state with every frame, so a byte the console misreads can't leave a tone stuck on.
+Hold both fire buttons and * on controller 1 for 2 seconds, or Select and Start on a USB pad, to go back to the menu. RESET still works too.

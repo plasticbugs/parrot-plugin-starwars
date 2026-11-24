@@ -46,5 +46,5 @@ cvsd_use(starwars)
 cvpad_use(starwars)                         # USB game pads: the port is a host
 pico_enable_stdio_usb(starwars 0)
 pico_enable_stdio_uart(starwars 0)
-cvcart_plugin(starwars ID parrotcart.starwars NAME "Star Wars" VERSION 0.1.8 BY "Parrot Cart"
+cvcart_plugin(starwars ID parrotcart.starwars NAME "Star Wars" VERSION 0.1.9 BY "Parrot Cart"
               HOME /STARWARS USES usb-host ICON src/starwars_icon.txt FILE STARWARS.CVP README CART-README.md)
